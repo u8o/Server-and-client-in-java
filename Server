@@ -1,0 +1,84 @@
+import java.net.*;
+import java.util.*;
+import java.io.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+class Frame extends JFrame implements ActionListener{
+   Container cp; Container cp1 = new Container();
+   JLabel L;
+   JTextArea t;
+   TextField tf; 
+   JButton b;
+   JPanel p;
+   public Frame(){
+   	
+	   cp= getContentPane();
+	   cp.setBackground (Color.white); cp1.setLayout (new BorderLayout());
+	   cp.setBackground (Color.white);
+
+       L= new JLabel("Server");
+
+       t = new JTextArea();
+       t.setColumns(150);
+       tf= new TextField(15);
+
+       b = new JButton ("Send");
+       b.addActionListener(this);
+
+       p= new JPanel();
+       p.setBackground (Color.white);
+       
+       cp1.add(L, "North");
+       add (cp1, "Center");
+       cp1.add(t);
+       p.add(tf);
+       p.add(b);
+       add (p,"South");
+
+       setDefaultCloseOperation (EXIT_ON_CLOSE);
+       setVisible(true);
+       setSize(250,250);
+       setLocation(900,300);
+       setTitle("Server Chat");
+   }
+}
+public class Server extends Frame implements Runnable, ActionListener {
+    ServerSocket Socket1 ;
+    PrintWriter sender ;
+    Scanner receiver ;
+    Socket Socket2 ;
+    public Server() throws IOException {
+        super();
+        Connect();
+    }
+    public static void main(String[] args) throws  IOException {
+     new Server();
+    }
+    public void Connect()throws IOException{
+        Socket1 = new ServerSocket(1978);
+        Socket2= Socket1.accept();
+        Server.super.t.setText("");
+        Thread Tstart = new Thread(this);
+        sender = new PrintWriter(Socket2.getOutputStream(),true);
+        receiver = new Scanner(Socket2.getInputStream());
+        Tstart.start();
+    }
+    public void run() {
+        String Massege ;
+        while (true){
+        	Massege = receiver.nextLine();
+            Server.super.t.append("Client : "
+        	+Massege+
+        	"\n");
+        }
+    }
+    public void actionPerformed(ActionEvent ae) {
+        if(ae.getSource().equals(Server.super.b)||ae.getSource().equals(Server.super.tf)){
+            String Massege = Server.super.tf.getText();
+            Server.super.tf.setText("");
+            Server.super.t.append(Massege+"\n");
+            sender.println(Massege);
+        }
+    }
+}
